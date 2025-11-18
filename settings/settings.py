@@ -45,7 +45,8 @@ INSTALLED_APPS = [
     'django_filters',
     'corsheaders',
     'drf_yasg',
-    'booking'
+    'booking',
+    'core'
 ]
 
 MIDDLEWARE = [

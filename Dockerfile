@@ -38,6 +38,7 @@ WORKDIR /app
 COPY pyproject.toml ./
 COPY settings/ ./settings/
 COPY booking/ ./booking/
+COPY core/ ./core/
 RUN uv pip install --system -e .
 
 RUN apk del .build-deps
