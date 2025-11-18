@@ -208,3 +208,7 @@ __marimo__/
 
 .idea
 .idea/
+staticfiles-api
+staticfiles-api/
+staticfiles/
+staticfiles
