@@ -3,7 +3,7 @@ services:
     image: postgres:15-alpine
     container_name: meet_db_dev
     environment:
-      POSTGRES_DB: meet_dev
+      POSTGRES_DB: booking_dev
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     ports:
@@ -21,7 +21,7 @@ services:
       context: .
       dockerfile: Dockerfile
       target: development
-    container_name: meet_web_dev
+    container_name: booking_web_dev
     command: python manage.py runserver 0.0.0.0:8000
     volumes:
       - .:/app
@@ -29,7 +29,7 @@ services:
       - "8000:8000"
     environment:
       - DJANGO_SETTINGS_MODULE=settings.settings
-      - DATABASE_URL=postgresql://postgres:postgres@db:5432/meet_dev
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/booking_dev
       - DB_HOST=db
       - DB_PORT=5432
       - DB_USER=postgres
