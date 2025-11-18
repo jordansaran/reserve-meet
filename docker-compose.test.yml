@@ -1,0 +1,37 @@
+services:
+  db_test:
+    image: postgres:15-alpine
+    container_name: meet_db_test
+    environment:
+      POSTGRES_DB: meet_test
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    tmpfs:
+      - /var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 5
+
+  test:
+    build:
+      context: .
+      dockerfile: Dockerfile
+      target: test
+    container_name: meet_test
+    command: pytest -v --cov=. --cov-report=html --cov-report=term
+    volumes:
+      - .:/app
+      - ./htmlcov:/app/htmlcov
+    environment:
+      - DJANGO_SETTINGS_MODULE=config.settings.test
+      - DATABASE_URL=postgresql://postgres:postgres@db_test:5432/meet_test
+      - DB_HOST=db_test
+      - DB_PORT=5432
+      - DB_USER=postgres
+      - DEBUG=False
+    depends_on:
+      db_test:
+        condition: service_healthy
+    user: "1000:1000"
