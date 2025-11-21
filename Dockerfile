@@ -80,7 +80,7 @@ if [ "$DJANGO_SETTINGS_MODULE" = "settings.settings" ]; then
 from django.contrib.auth import get_user_model
 User = get_user_model()
 if not User.objects.filter(username='admin').exists():
-    User.objects.create_superuser('admin', 'admin@example.com', 'admin123')
+    User.objects.create_superuser(email='admin@example.com', password='admin123', username='admin')
     print('✅ Superuser criado: admin/admin123')
 else:
     print('ℹ️  Superuser já existe')
@@ -99,3 +99,45 @@ USER appuser
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["python", "manage.py", "runserver", "0.0.0.0:8000"]
+
+FROM base as test
+USER root
+
+RUN apk add --no-cache --virtual .build-deps \
+    build-base postgresql-dev pkgconf && \
+    uv pip install --system -e ".[test]" && \
+    apk del .build-deps && \
+    chown -R appuser:appuser /app
+
+COPY manage.py ./
+COPY tests/ ./tests/
+
+RUN cat > /entrypoint-test.sh << 'EOF'
+#!/bin/sh
+set -e
+
+echo "🔍 Aguardando PostgreSQL..."
+DB_HOST=${DB_HOST:-db_test}
+DB_PORT=${DB_PORT:-5432}
+DB_USER=${DB_USER:-postgres}
+
+while ! pg_isready -h $DB_HOST -p $DB_PORT -U $DB_USER > /dev/null 2>&1; do
+  sleep 1
+done
+echo "✅ PostgreSQL disponível!"
+
+echo "🔄 Rodando migrations..."
+python manage.py migrate --noinput
+
+echo "🧪 Executando testes..."
+exec "$@"
+EOF
+
+RUN chmod +x /entrypoint-test.sh && \
+    chown appuser:appuser /entrypoint-test.sh && \
+    chown -R appuser:appuser /app
+
+USER appuser
+
+ENTRYPOINT ["/entrypoint-test.sh"]
+CMD ["pytest"]

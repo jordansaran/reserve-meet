@@ -1,9 +1,9 @@
 services:
   db_test:
     image: postgres:15-alpine
-    container_name: meet_db_test
+    container_name: booking_db_test
     environment:
-      POSTGRES_DB: meet_test
+      POSTGRES_DB: booking_test
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     tmpfs:
@@ -19,18 +19,19 @@ services:
       context: .
       dockerfile: Dockerfile
       target: test
-    container_name: meet_test
-    command: pytest -v --cov=. --cov-report=html --cov-report=term
+    container_name: booking_test
+    command: pytest -v --cov=. --cov-report=html --cov-report=term-missing
     volumes:
       - .:/app
       - ./htmlcov:/app/htmlcov
     environment:
-      - DJANGO_SETTINGS_MODULE=config.settings.test
-      - DATABASE_URL=postgresql://postgres:postgres@db_test:5432/meet_test
+      - DJANGO_SETTINGS_MODULE=settings.settings
+      - DATABASE_URL=postgresql://postgres:postgres@db_test:5432/booking_test
       - DB_HOST=db_test
       - DB_PORT=5432
       - DB_USER=postgres
       - DEBUG=False
+      - SECRET_KEY=test-secret-key-for-testing-only
     depends_on:
       db_test:
         condition: service_healthy

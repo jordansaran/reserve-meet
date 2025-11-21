@@ -32,7 +32,7 @@ from rest_framework_simplejwt.views import (
 
 schema_view = get_schema_view(
     openapi.Info(
-        title="NXT API",
+        title="Booking API",
         default_version='v1',
         description="Documentação de reserva de salas de reunião",
         terms_of_service="",
@@ -45,9 +45,11 @@ schema_view = get_schema_view(
 )
 
 api_url_patterns = [
-    path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
-    path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
-    path("auth/", include("rest_framework.urls")),
+    # path('api/token/', TokenObtainPairView.as_view(), name='token_obtain_pair'),
+    # path('api/token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    # path("auth/", include("rest_framework.urls")),
+    path('api/', include('booking.urls')),
+    path('', include('core.urls')),
 
     path(
         'swagger<format>/',
